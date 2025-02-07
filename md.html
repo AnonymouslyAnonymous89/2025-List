@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Positions Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            margin-bottom: 20px;
+        }
+        .client {
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .client-info {
+            width: 60%;
+        }
+        .important-info {
+            width: 35%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+        .positions {
+            margin-top: 10px;
+        }
+        .position-open {
+            color: green;
+            font-weight: bold;
+        }
+        .position-closed {
+            color: red;
+            font-weight: bold;
+        }
+        .action-btn {
+            margin-top: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        input[type="text"], input[type="email"], input[type="number"], textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .search-bar {
+            margin-bottom: 10px;
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <label for="searchClient">Search Clients:</label>
+    <input type="text" id="searchClient" class="search-bar" placeholder="Search by name or email" oninput="filterClients()">
+    <label for="openPositionsDropdown">Available Positions:</label>
+    <select id="openPositionsDropdown" aria-label="Select an open position">
+        <option value="">-- Open Positions --</option>
+    </select>
+    <button id="addClientBtn" class="action-btn">Add New Client</button>
+</header>
+
+<div id="clientsContainer">
+    <!-- Dynamically populated -->
+</div>
+
+<script>
+    let clients = [
+        {
+            id: 'client1',
+            name: 'Radici',
+            dispatchLink: 'http://example.com/dispatch',
+            businessAddress: '960 Seville Rd #8316, Wadsworth, OH 44281',
+            zip: '44281',
+            email: 'info@radici.com',
+            positions: []
+        },
+        {
+            id: 'client2',
+            name: "AA Maintenance Services",
+            dispatchLink: "https://docs.google.com/document/d/1j23A8VfizVQVzlE8Gg2OouQT0xQUlGyB/edit?usp=sharing&ouid=103407454893870878864&rtpof=true&sd=true",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'contact@aamaintenance.com',
+            positions: []
+        },
+        {
+            id: 'client3',
+            name: "ABC Supply",
+            dispatchLink: "https://docs.google.com/document/u/0/d/11T2vFOLw9kbMf7e-NcAs-GQeZ5RcKV1c/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@abcsupply.com',
+            positions: []
+        },
+        {
+            id: 'client4',
+            name: "Accel Group",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1vb4ppCvVQVcdfatISPuVeyinmCGLxF-3/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@accelgroup.com',
+            positions: []
+        },
+        {
+            id: 'client5',
+            name: "AIM",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1oMfMpMmrvXn5x75ZordjJLdBhh1ZKZZf/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@aim.com',
+            positions: []
+        },
+        {
+            id: 'client6',
+            name: "ALRO Steel CORP",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1FIi_uiqiCRGKoF02EFkp9-IOnKqcekqm/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@alrosteel.com',
+            positions: []
+        },
+        {
+            id: 'client7',
+            name: "American Utility Processing",
+            dispatchLink: "https://docs.google.com/document/d/1m4sR7M2H_53uuZJvDuWpx68rFuCvQ5qsBlUVZ_R6_oM/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@americanutility.com',
+            positions: []
+        },
+        {
+            id: 'client8',
+            name: "Akron Summit County Action (ASCA)",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1_75T3h0TStOhIySz9FxNuEmXHvutRaYr/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@asca.com',
+            positions: []
+        },
+        {
+            id: 'client9',
+            name: "artiflex",
+            dispatchLink: "https://docs.google.com/document/u/0/d/15m2alXm5spAaxdFN4qWe2Mmy4kzJIhqU/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@artiflex.com',
+            positions: []
+        },
+        {
+            id: 'client10',
+            name: "Aurora Plstics",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1tPrcYEFYyVscS5QK4ZyZih7QTSXjZfr4/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@auroraplastics.com',
+            positions: []
+        },
+        {
+            id: 'client11',
+            name: "Auto Dealer Design",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1CE9YJZDEPSlygNNxL1kaCMED8nKlbkkT/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@autodealerdesign.com',
+            positions: []
+        },
+        {
+            id: 'client12',
+            name: "Banner Supply",
+            dispatchLink: "https://docs.google.com/document/d/1DwC6tfO4Dm0vpSmh6TSuAY4GzAqu67Gz4v6JhcJCMu4/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@bannersupply.com',
+            positions: []
+        },
+        {
+            id: 'client13',
+            name: "Baker McMillen - Waddell",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1AczBnfYCn9xi6re0VrNLe6HHtWGaC_tj/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@bakermcmillen.com',
+            positions: []
+        },
+        {
+            id: 'client14',
+            name: "bRok Products",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1peaUGr2VUGlnVYbJkc1xI5X-5fiKRVPg/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@brokproducts.com',
+            positions: []
+        },
+        {
+            id: 'client15',
+            name: "Bridgestone",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1Lia1jtNnYVdXwEP6C-FwMcKyp8gx6EZ9/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@bridgestone.com',
+            positions: []
+        },
+        {
+            id: 'client16',
+            name: "Best Mold & Manufacturing",
+            dispatchLink: "https://docs.google.com/document/u/0/d/193g-b7kIM_07nyC4mfT-IiV1hQGrtLHH/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@bestmold.com',
+            positions: []
+        },
+        {
+            id: 'client17',
+            name: "CFE Construction",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1BOqA79-ZzPEZYeoCUnaxZNO4QRToFcFp/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@cfeconstruction.com',
+            positions: []
+        },
+        {
+            id: 'client18',
+            name: "Community Habilitations",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1edc0sePH31Cmf2IZBuZO3c5QRBHdkckh/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@communityhabilitations.com',
+            positions: []
+        },
+        {
+            id: 'client19',
+            name: "Corwell Quality Tools",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1kIF3NSdlpcUOVDjSgICCQDa_yU2GxxBk/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@corwelltools.com',
+            positions: []
+        },
+        {
+            id: 'client20',
+            name: "Craft33",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1367IjblmnivEH2U00mC1lQ8RXqoeYHFr/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@craft33.com',
+            positions: []
+        },
+        {
+            id: 'client21',
+            name: "Country Pure Foods",
+            dispatchLink: "https://docs.google.com/document/d/1Pf06RG4XqDclc_6drCZKnqBidvEIS6UhKhl4IzpLG8o/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@countrypurefoods.com',
+            positions: []
+        },
+        {
+            id: 'client22',
+            name: "Curtiss Wright",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1ifXk-tkfpwbV3yfDh45d27ZE-VUdXnHP/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@curtisswright.com',
+            positions: []
+        },
+        {
+            id: 'client23',
+            name: "D + S Distribution Inc",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1FA7PYnCurikaT_Sr_lZCSsmWv_cUCmKj/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@dsdistribution.com',
+            positions: []
+        },
+        {
+            id: 'client24',
+            name: "Diabetes and Endocrinology Associates of Stark County",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1rDbjaXYiBGlropOWRKffsqUTAcWC1Ctt/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@diabetesstark.com',
+            positions: []
+        },
+        {
+            id: 'client25',
+            name: "Doyle Shop",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1HsQNg4rwkPnSLg8iB8eMH_zXIRmiPcq_/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@doyleshop.com',
+            positions: []
+        },
+        {
+            id: 'client26',
+            name: "Duro Manufacturing",
+            dispatchLink: "https://docs.google.com/document/d/1i9xkHIEx1Yp8RXoLJK0FwsgRG-l3N9J0xRAKdyu46UQ/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@duromanufacturing.com',
+            positions: []
+        },
+        {
+            id: 'client27',
+            name: "East Manufacturing",
+            dispatchLink: "https://docs.google.com/document/d/1UkgQxrfCr1T9SwwpSascbxsZwEcEwt4x5uLX9HPP1xo/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@eastmanufacturing.com',
+            positions: []
+        },
+        {
+            id: 'client28',
+            name: "ELBEX _ Sealmaster",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1AsqK9QhXBefnzlMs0slSqKZfNnF-6fHA/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@elbexsealmaster.com',
+            positions: []
+        },
+        {
+            id: 'client29',
+            name: "Empire Die Castings",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1RdnvV4WdY7uP4FUhCSENlsFkA7ShQNqV/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@empirediecastings.com',
+            positions: []
+        },
+        {
+            id: 'client30',
+            name: "Enterprise Rubber",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1YMJ8vpfxDSERu7vWFNlxw7yduXTLy4_L/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@enterpriserubber.com',
+            positions: []
+        },
+        {
+            id: 'client31',
+            name: "ESI Extrusion",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1BEXMItC0wzPFT30-8ByTVw4bD2V8y1_a/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@esiextrusion.com',
+            positions: []
+        },
+        {
+            id: 'client32',
+            name: "Everhard Products",
+            dispatchLink: "https://docs.google.com/document/d/1pwPcmSqhPgiZkILryy1k0EP3uxAxyhxeuuqC2XuoL-o/edit#heading=h.exx53rwz4xzj",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@everhardproducts.com',
+            positions: []
+        },
+        {
+            id: 'client33',
+            name: "Exterior Plus",
+            dispatchLink: "https://docs.google.com/document/d/1mlr_jRyVdraRqQ81e4ANxqLBipyhwXOZgkrG9_kqiMA/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@exteriorplus.com',
+            positions: []
+        },
+        {
+            id: 'client34',
+            name: "Falls Stamping",
+            dispatchLink: "https://docs.google.com/document/u/0/d/11hHiqZUYt1emfsBgIF6l1DoqG-yCFlP4/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@fallsstamping.com',
+            positions: []
+        },
+        {
+            id: 'client35',
+            name: "Flambeau Inc",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1JEJUF_F5J1H1gRg0lbZVVoP_FMT",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@flambeau.com',
+            positions: []
+        },
+        {
+            id: 'client36',
+            name: "Ken-Tool",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1yL-ausxq05FZ42OEWHkuo8XTsqP-yywr/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@kentool.com',
+            positions: []
+        },
+        {
+            id: 'client37',
+            name: "Killian Latex",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1pTxSd4yBBfg0WR-GRFiuALstxLIP1901/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@killianlatex.com',
+            positions: []
+        },
+        {
+            id: 'client38',
+            name: "Lightner Tire",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1i4Su-NytxnI1dJBLjkCcIdoEC1m94GLz/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@lightnertire.com',
+            positions: []
+        },
+        {
+            id: 'client39',
+            name: "LMT",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1zrw1fWQBPJpuwRuBqr50rviOf1EejWqu/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@lmt.com',
+            positions: []
+        },
+        {
+            id: 'client40',
+            name: "Luke Engineering",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1ruebU7P5kSwXV-gp23-qlTQR_X-InN3p/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@lukeengineering.com',
+            positions: []
+        },
+        {
+            id: 'client41',
+            name: "Master Precision Machining",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1DE6ZCYIqy5MPBfRg-lVmYVrOy_dzIpEO/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@masterprecision.com',
+            positions: []
+        },
+        {
+            id: 'client42',
+            name: "McAfee Tool & Die",
+            dispatchLink: "https://docs.google.com/document/d/1BFCYIYw0JujeCdOVsux9xqg-aLWsAF1QcyDI7gNcqrE/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@mcafeetool.com',
+            positions: []
+        },
+        {
+            id: 'client43',
+            name: "Medical Testing Paper2",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1MBz89Ni5Z9y5TWDdEOUqhlwpfUpBRtVw/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@medicaltesting.com',
+            positions: []
+        },
+        {
+            id: 'client44',
+            name: "Michael Day Enterprises",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1Bl7WHbZIag9G0gXLedDb70o4h_B6uXRi/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@michaelday.com',
+            positions: []
+        },
+        {
+            id: 'client45',
+            name: "MRP Solutions",
+            dispatchLink: "https://docs.google.com/document/d/1mu1RlKxo4PyPYv3z3MYVK8d6cmGk9NHbm_CFl3XfAeg/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@mrpsolutions.com',
+            positions: []
+        },
+        {
+            id: 'client46',
+            name: "Northeast Developmental Services, Inc",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1maaYm9A2VokqZnOcljCsy9b891YqpNNX/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@northeastdevelopmental.com',
+            positions: []
+        },
+        {
+            id: 'client47',
+            name: "Northeast Nephrology Associate",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1x-2ojiyK9oD__kuwRkVkDHR_QcHQBxy8/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@northeastnephrology.com',
+            positions: []
+        },
+        {
+            id: 'client48',
+            name: "Oldcastle",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1r_PLWjcnr17x02f7m_WV6fz5YYVSk95G/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@oldcastle.com',
+            positions: []
+        },
+        {
+            id: 'client49',
+            name: "Pediatrics of Akron",
+            dispatchLink: "https://docs.google.com/document/d/1zRoGt31s0X47fuuz-ngCkM80kxT9kRUEdmgyObNdbuU/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@pediatricsofakron.com',
+            positions: []
+        },
+        {
+            id: 'client50',
+            name: "Permco",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1p2SkMSBgW28WKpXQ7IqWGPVu_CPZGIgm/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@permco.com',
+            positions: []
+        },
+        {
+            id: 'client51',
+            name: "Pilot Plastics",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1E2YC7-NhVVJhgdACJif06iUfeTT2LEmE/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@pilotplastics.com',
+            positions: []
+        },
+        {
+            id: 'client52',
+            name: "Plur",
+            dispatchLink: "https://docs.google.com/document/d/1dl48AWjLLO9u5Nw65W6i2cYeXVHM-QhPsvrJoOsQauA/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@plur.com',
+            positions: []
+        },
+        {
+            id: 'client53',
+            name: "Polymerics Inc",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1hIGxjWTeCxwtfrDU6GsgU-p-x2rWqUaB/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@polymerics.com',
+            positions: []
+        },
+        {
+            id: 'client54',
+            name: "Power Tool Repair",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1BNel6EtOFNZz9FSadKjVwUqU6KJ68oth/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@powertoolrepair.com',
+            positions: []
+        },
+        {
+            id: 'client55',
+            name: "Premier Seals / Great Lakes Manufacturing",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1nIx5eW1KGk08oKn4A_HMqHcOMGMotTR6/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@premierseals.com',
+            positions: []
+        },
+        {
+            id: 'client56',
+            name: "Pure Buttons",
+            dispatchLink: "https://docs.google.com/document/d/1v_0cqTdIzf7p7BEguTQBhY860iSU3mnhYeR3Jhkb4yw/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@purebuttons.com',
+            positions: []
+        },
+        {
+            id: 'client57',
+            name: "Radici Plastics",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1l9QnwK3VP1Z_hz2gCmQ1Tcvw4TqrGpqW/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@radiciplastics.com',
+            positions: []
+        },
+        {
+            id: 'client58',
+            name: "Rainbow Mixer",
+            dispatchLink: "https://docs.google.com/document/d/11TrgunDiJKUHjWnnfObwZYxn1szvy5VhVO98YyQUJmw/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@rainbowmixer.com',
+            positions: []
+        },
+        {
+            id: 'client59',
+            name: "RJS Corp.",
+            dispatchLink: "https://docs.google.com/document/d/1n0DAa5_5AlT_sy4CPZ8cj4Gu4RLEcLH7TbMiO1kzUXM/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@rjscorp.com',
+            positions: []
+        },
+        {
+            id: 'client60',
+            name: "SACs",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1o5bnyPJBfBA6Dgp01tZny9r7jECXxp35/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@sacs.com',
+            positions: []
+        },
+        {
+            id: 'client61',
+            name: "Scott's Miracle Gro",
+            dispatchLink: "https://docs.google.com/document/d/1UDOyXi32P1tg1mmU3QtXWJUqWL5CCvnWyqHftoVCcBs/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@scottsmiraclegro.com',
+            positions: []
+        },
+        {
+            id: 'client62',
+            name: "Siffron",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1RS936yEZwuXA0QgATd-Qa_2uzXCRKd2S/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@siffron.com',
+            positions: []
+        },
+        {
+            id: 'client63',
+            name: "Sparkys Welding Pro",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1yW3-LcFe1r0vE5mxbOFnbRQS0_l-rNQc/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@sparkyswelding.com',
+            positions: []
+        },
+        {
+            id: 'client64',
+            name: "Specialty Metals",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1xVStCjG1EyhHvF8OlxGHLuO6j1dKsrcW/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@specialtymetals.com',
+            positions: []
+        },
+        {
+            id: 'client65',
+            name: "St. Mark’s Episcopal Church",
+            dispatchLink: "https://docs.google.com/document/d/1Ct5F3XTEq-hg4hecWikJEBb6eyC1rsIWhyNDUPoN7fw/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@stmarksepiscopal.com',
+            positions: []
+        },
+        {
+            id: 'client66',
+            name: "St. Paul Evangelical Lutheran Church",
+            dispatchLink: "https://docs.google.com/document/d/12BZ6uobnpi7jjgm6ZX1faxivD8JuFEl1JI5eF16WKgs/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@stpaulelc.com',
+            positions: []
+        },
+        {
+            id: 'client67',
+            name: "Summa Rehabilitation Hospital",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1ym_6yBF_u8CIh7FMVmEeW4kuAnH_a0qP/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@summarehab.com',
+            positions: []
+        },
+        {
+            id: 'client68',
+            name: "Survitec",
+            dispatchLink: "https://docs.google.com/document/u/0/d/15bKtf80Rshztsm32iVefq9lP0QP6fz3i/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@survitec.com',
+            positions: []
+        },
+        {
+            id: 'client69',
+            name: "Talk of The Town",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1yNRtLKJaSc",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@talkofthetown.com',
+            positions: []
+        },
+        {
+            id: 'client70',
+            name: "Taste of Excellence",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1ZpJZSl_26AsMGmo4Tx_xBzqMuWx8aa47/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@tasteofexcellence.com',
+            positions: []
+        },
+        {
+            id: 'client71',
+            name: "Total Distribution",
+            dispatchLink: "https://docs.google.com/document/d/1GFijkHg5q-AnN_AytsvvsSNvxcyJ98moL_UcI-Pz-7Y/edit?usp=sharing",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@totaldistribution.com',
+            positions: []
+        },
+        {
+            id: 'client72',
+            name: "Tramonte",
+            dispatchLink: "https://docs.google.com/document/u/0/d/15-hAsHxblnIva1bZRBN6P7a2Bm1pYJn_/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@tramonte.com',
+            positions: []
+        },
+        {
+            id: 'client73',
+            name: "Tri - Cast",
+            dispatchLink: "https://docs.google.com/document/u/0/d/1BEXMItC0wzPFT30-8ByTVw4bD2V8y1_a/edit",
+            businessAddress: 'Address not provided',
+            zip: '00000',
+            email: 'info@tricast.com',
+            positions: []
+        }
+    ];
+
+    function populateOpenPositionsDropdown() {
+        const openPositionsDropdown = document.getElementById('openPositionsDropdown');
+        openPositionsDropdown.innerHTML = '<option value="">-- Open Positions --</option>';
+
+        clients.forEach(client => {
+            client.positions.forEach(position => {
+                if (position.status === 'open') {
+                    let posOption = document.createElement('option');
+                    posOption.value = `${client.id}-${position.title}`;
+                    posOption.textContent = `${position.title} at ${client.name}`;
+                    openPositionsDropdown.appendChild(posOption);
+                }
+            });
+        });
+    }
+
+    function renderClients() {
+        const container = document.getElementById('clientsContainer');
+        container.innerHTML = ''; 
+
+        clients.forEach(client => {
+            const clientDiv = document.createElement('div');
+            clientDiv.className = 'client';
+            clientDiv.id = client.id;
+
+            clientDiv.innerHTML = `
+                <div class="client-info">
+                    <strong>${client.name}</strong><br>
+                    Address: ${client.businessAddress}<br>
+                    Zip: ${client.zip}<br>
+                    Email: ${client.email}<br>
+                    <a href="${client.dispatchLink}" target="_blank">Dispatch Form</a><br>
+                    <div class="positions" id="positions-${client.id}"></div>
+                    <button class="action-btn" onclick="addPosition('${client.id}')">Add Position</button>
+                </div>
+                <div class="important-info">
+                    <label for="importantInfo-${client.id}">Important Information:</label>
+                    <textarea id="importantInfo-${client.id}" rows="5" placeholder="Enter any important notes here..."></textarea>
+                    <button class="action-btn" onclick="saveImportantInfo('${client.id}')">Save</button>
+                </div>
+            `;
+
+            container.appendChild(clientDiv);
+            renderPositions(client);
+        });
+
+        populateOpenPositionsDropdown();
+    }
+
+    function renderPositions(client) {
+        const positionsContainer = document.getElementById(`positions-${client.id}`);
+        positionsContainer.innerHTML = "";
+
+        client.positions.forEach((position, index) => {
+            let positionHTML = `
+                <li class="${position.status === 'open' ? 'position-open' : 'position-closed'}">
+                    <strong>${position.title}</strong> (${position.status.toUpperCase()})<br>
+                    Department: ${position.department} | Salary: ${position.salary} | Type: ${position.jobType}<br>
+                    Experience Level: ${position.experience}<br>
+                    Description: ${position.description}<br>
+            `;
+
+            if (position.status === 'closed') {
+                positionHTML += `
+                    <br>Reason: ${position.closedReason}<br>
+                    Hiree: ${position.hiree || "N/A"}<br>
+                    Closed on: ${position.closedDate}<br>
+                `;
+            }
+
+            positionHTML += `
+                    <button class="action-btn" onclick="editPosition('${client.id}', ${index})">Edit</button>
+                    <button class="action-btn" onclick="deletePosition('${client.id}', ${index})">Delete</button>
+                </li>
+            `;
+
+            positionsContainer.innerHTML += positionHTML;
+        });
+    }
+
+    function addPosition(clientId) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        const position = {
+            title: prompt("Enter the job title:"),
+            department: prompt("Enter the department:"),
+            salary: prompt("Enter salary range (e.g., $60,000 - $80,000):"),
+            jobType: prompt("Enter job type (Full-Time, Part-Time, Contract):"),
+            experience: prompt("Enter experience level (e.g., Junior, Mid, Senior):"),
+            description: prompt("Enter a short job description:"),
+            status: confirm("Is this position open? Click OK for Open, Cancel for Closed.") ? 'open' : 'closed'
+        };
+
+        if (position.status === 'closed') {
+            position.closedReason = prompt("Why is this position closed?");
+            position.hiree = prompt("Who was hired for this role? (Leave blank if none)");
+            position.closedDate = new Date().toLocaleString();
+        }
+
+        client.positions.push(position);
+        renderClients();
+    }
+
+    function editPosition(clientId, index) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        const position = client.positions[index];
+        position.title = prompt("Edit job title:", position.title) || position.title;
+        position.department = prompt("Edit department:", position.department) || position.department;
+        position.salary = prompt("Edit salary range:", position.salary) || position.salary;
+        position.jobType = prompt("Edit job type:", position.jobType) || position.jobType;
+        position.experience = prompt("Edit experience level:", position.experience) || position.experience;
+        position.description = prompt("Edit job description:", position.description) || position.description;
+
+        const wasOpen = position.status === 'open';
+        const newStatus = confirm("Is this position still open? Click OK for Open, Cancel for Closed.") ? 'open' : 'closed';
+
+        if (wasOpen && newStatus === 'closed') {
+            position.closedReason = prompt("Why is this position closed?");
+            position.hiree = prompt("Who was hired for this role? (Leave blank if none)");
+            position.closedDate = new Date().toLocaleString();
+        }
+
+        position.status = newStatus;
+        renderClients();
+    }
+
+    function deletePosition(clientId, index) {
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return;
+
+        client.positions.splice(index, 1);
+        renderClients();
+    }
+
+    function saveImportantInfo(clientId) {
+        const importantInfo = document.getElementById(`importantInfo-${clientId}`).value;
+        alert("Important information saved: " + importantInfo);
+        // Optionally, save this to a database or store it in the client object
+    }
+
+    function addClient() {
+        const clientName = prompt("Enter the client's name:");
+        const dispatchLink = prompt("Enter the dispatch link:");
+        const businessAddress = prompt("Enter the business address:");
+        const zip = prompt("Enter the zip code:");
+        const email = prompt("Enter the email address:");
+
+        const newClient = {
+            id: `client${clients.length + 1}`,
+            name: clientName,
+            dispatchLink: dispatchLink,
+            businessAddress: businessAddress,
+            zip: zip,
+            email: email,
+            positions: []
+        };
+
+        clients.push(newClient);
+        renderClients();
+    }
+
+    function filterClients() {
+        const searchQuery = document.getElementById('searchClient').value.toLowerCase();
+        const filteredClients = clients.filter(client => 
+            client.name.toLowerCase().includes(searchQuery) ||
+            client.email.toLowerCase().includes(searchQuery)
+        );
+        renderFilteredClients(filteredClients);
+    }
+
+    function renderFilteredClients(filteredClients) {
+        const container = document.getElementById('clientsContainer');
+        container.innerHTML = ''; 
+
+        filteredClients.forEach(client => {
+            const clientDiv = document.createElement('div');
+            clientDiv.className = 'client';
+            clientDiv.id = client.id;
+
+            clientDiv.innerHTML = `
+                <div class="client-info">
+                    <strong>${client.name}</strong><br>
+                    Address: ${client.businessAddress}<br>
+                    Zip: ${client.zip}<br>
+                    Email: ${client.email}<br>
+                    <a href="${client.dispatchLink}" target="_blank">Dispatch Form</a><br>
+                    <div class="positions" id="positions-${client.id}"></div>
+                    <button class="action-btn" onclick="addPosition('${client.id}')">Add Position</button>
+                </div>
+                <div class="important-info">
+                    <label for="importantInfo-${client.id}">Important Information:</label>
+                    <textarea id="importantInfo-${client.id}" rows="5" placeholder="Enter any important notes here..."></textarea>
+                    <button class="action-btn" onclick="saveImportantInfo('${client.id}')">Save</button>
+                </div>
+            `;
+
+            container.appendChild(clientDiv);
+            renderPositions(client);
+        });
+
+        populateOpenPositionsDropdown();
+    }
+
+    function init() {
+        renderClients();
+        document.getElementById('addClientBtn').addEventListener('click', addClient);
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
