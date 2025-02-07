@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Positions Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            margin-bottom: 20px;
+        }
+        .client {
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .client-info {
+            width: 60%;
+        }
+        .important-info {
+            width: 35%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+        .positions {
+            margin-top: 10px;
+        }
+        .position-open {
+            background-color: #e6ffe6;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: bold;
+            color: #1a5928;
+         }
+        .position-open::before {
+            content: "🟢";
+            margin-right: 8px;
+        }
+        .position-open:hover {
+            background-color: #d4ffd4;
+            transition: background-color 0.3s ease;
+        }
+        .position-closed {
+            color: red;
+            font-weight: bold;
+        }
+        .action-btn {
+            margin-top: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        input[type="text"], input[type="email"], input[type="number"], textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .search-bar {
+            margin-bottom: 10px;
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <label for="searchClient">Search Clients:</label>
+    <input type="text" id="searchClient" class="search-bar" placeholder="Search by name or email" oninput="filterClients()">
+    <label for="openPositionsDropdown">Available Positions:</label>
+    <select id="openPositionsDropdown" aria-label="Select an open position">
+        <option value="">-- Open Positions --</option>
+    </select>
+    <button id="addClientBtn" class="action-btn" type="button">Add New Client</button>
+</header>
+
+<div id="clientsContainer">
+    <!-- Dynamically populated -->
+</div>
+
+<script>
+    let clients = JSON.parse(localStorage.getItem('clients')) || [
+    {
+        id: 'client2',
+        name: "AA Maintenance Services, LLC",
+        dispatchLink: "https://docs.google.com/document/d/1j23A8VfizVQVzlE8Gg2OouQT0xQUlGyB/edit?usp=sharing&ouid=103407454893870878864&rtpof=true&sd=true",
+        businessAddress: '814 Tryon Ave, Akron, OH 44310',
+        zip: '44310',
+        email: 'contact@aamaintenance.com',
+        positions: []
+    },
+    {
+        id: 'client3',
+        name: "ABC Supply Co. Inc.",
+        dispatchLink: "https://docs.google.com/document/u/0/d/11T2vFOLw9kbMf7e-NcAs-GQeZ5RcKV1c/edit",
+        businessAddress: '142 S Van Buren, Barberton, OH 44203',
+        zip: '44203',
+        email: 'info@abcsupply.com',
+        positions: []
+    },
+    {
+        id: 'client4',
+        name: "Akron Summit Community Action",
+        dispatchLink: "https://docs.google.com/document/u/0/d/1_75T3h0TStOhIySz9FxNuEmXHvutRaYr/edit",
+        businessAddress: '670 W Exchange St, Akron, OH 44302',
+        zip: '44302',
+        email: 'info@asca.com',
+        positions: []
+    },
+    {
+        id: 'client5',
+        name: "Alro Steel, Akron",
+        dispatchLink: "https://docs.google.com/document/u/0/d/1FIi_uiqiCRGKoF02EFkp9-IOnKqcekqm/edit",
+        businessAddress: '4787 State Rd, Cuyahoga Falls, OH 44223',
+        zip: '44223',
+        email: 'info@alrosteel.com',
+        positions: []
+    }
+];
+
+    // Function to filter clients based on search input
+    function filterClients() {
+        const searchTerm = document.getElementById('searchClient').value.toLowerCase();
+        const filteredClients = clients.filter(client => {
+            return (
+                client.name.toLowerCase().includes(searchTerm) ||
+                client.email.toLowerCase().includes(searchTerm)
+            );
+        });
+        displayClients(filteredClients);
+    }
+
+    // Function to display clients in the clientsContainer
+    function displayClients(clientsToDisplay) {
+        const clientsContainer = document.getElementById('clientsContainer');
+        clientsContainer.innerHTML = ''; // Clear existing content
+
+        clientsToDisplay.forEach(client => {
+            const clientDiv = document.createElement('div');
+            clientDiv.classList.add('client'); // Add a class for styling
+
+            clientDiv.innerHTML = `
+                <h3>${client.name}</h3>
+                <p>Email: ${client.email}</p>
+                <p>Address: ${client.businessAddress}, ${client.zip}</p>
+                <a href="${client.dispatchLink}" target="_blank">Dispatch Link</a>
+            `;
+
+            clientsContainer.appendChild(clientDiv);
+        });
+    }
+
+    // Mock function to fetch open positions (replace with actual API call)
+    function fetchOpenPositions() {
+        return [
+            "Software Engineer",
+            "Data Scientist",
+            "Project Manager",
+            "Accountant"
+        ];
+    }
+
+    // Function to populate the open positions dropdown
+    function populateOpenPositions() {
+        const openPositionsDropdown = document.getElementById('openPositionsDropdown');
+        const openPositions = fetchOpenPositions();
+
+        openPositions.forEach(position => {
+            const option = document.createElement('option');
+            option.value = position;
+            option.textContent = position;
+            openPositionsDropdown.appendChild(option);
+        });
+    }
+
+    // Initial population of clients and open positions
+    displayClients(clients);
+    populateOpenPositions();
+</script>
+
+</body>
+</html>
